@@ -7,9 +7,10 @@ const Gameon = require("../Models/models.gameon");
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const PORTAL_LIMITS = {
-  "https://begames.betech.lk": 10000,
-  "https://vibebox.betech.lk": 10000,
-  "https://kidzflix.betech.lk": 10000,
+  "https://quizzy.betech.lk": 10000,
+  "https://dermascan.betech.lk": 10000,
+  "https://lumabond.betech.lk": 10000,
+  "https://serenai.betech.lk": 10000,
 };
 
 let isRunning = false;
@@ -30,9 +31,8 @@ cron.schedule("* * * * *", async () => {
       while (processed < limit) {
         const customer = await User.findOne({
           where: {
-            // is_chargin: 0,
+            is_chargin: 0,
             origin,
-
             msisdn: {
               [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: "NOT FOUND" }],
             },
@@ -55,13 +55,11 @@ cron.schedule("* * * * *", async () => {
         });
 
         if (success) {
-          // await customer.update({ is_chargin: 1 });
-          await gameon.update({is_chargin : 1})
+          await customer.update({ is_chargin: 1 });
           processed++;
           console.log(`✅ ${origin} charged: ${customer.msisdn}`);
         } else {
-          // await customer.update({ is_chargin: -1 });
-          await gameon.update({ is_chargin: -1 });
+          await customer.update({ is_chargin: -1 });
           console.log(`❌ Failed: ${customer.msisdn}`);
         }
 

@@ -9,10 +9,10 @@ const sequelize = require('./Config/db');
 app.set('trust proxy', true);
 
 const allowedOrigins = [
-    'https://serenai.betech.lk/',
-    'https://lumabond.betech.lk/dashboard.php',
-    'https://dermascan.betech.lk/public/home.php',
-    'https://quizzy.betech.lk/index.php'
+    'https://serenai.betech.lk',
+    'https://lumabond.betech.lk',
+    'https://dermascan.betech.lk',
+    'https://quizzy.betech.lk'
 ];
 
 app.use(cors({

@@ -31,67 +31,52 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
 
     console.log("🍪 Cookies at start:", (await page.cookies()).length);
 
-    if (origin.includes("gameon.trickso.com")) {
-      await page.goto("http://gameon.trickso.com/subscribe", {
-        waitUntil: "networkidle2",
+    if (origin.includes("quizzy.betech.lk")) {
+      await page.goto(origin, { waitUntil: "domcontentloaded" });
+      await sleep(2000);
+
+      await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
+        waitUntil: "domcontentloaded",
       });
 
-      await sleep(6000);
-
-      const clicked = await page.evaluate(() => {
-        const btn = [...document.querySelectorAll("button")].find(
-          (b) => b.innerText.trim() === "Subscribe Now",
-        );
-
-        if (!btn) return false;
-
-        const rect = btn.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return false;
-
-        // fire full native event sequence
-        btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-        btn.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
-        btn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-        return true;
-      });
-
-      if (!clicked) {
-        throw new Error("Subscribe button not clickable");
-      }
-
-      console.log("🖱️ Subscribe button clicked (DOM safe)");
+      console.log("Quizzy Consent");
     }
 
-    else if (origin.includes("begames.betech.lk")) {
+    else if (origin.includes("dermascan.betech.lk")) {
       await page.goto(origin, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
+      await page.goto(`${origin.replace(/\/$/, "")}/subscribe.php`, {
         waitUntil: "domcontentloaded",
       });
 
-      console.log("📨 BeGames Send OTP opened");
-    } else if (origin.includes("vibebox.betech.lk")) {
+      console.log("DermaScan Consent");
+    }
+    
+    else if (origin.includes("lumabond.betech.lk")) {
       await page.goto(origin, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
+      await page.goto(`${origin.replace(/\/$/, "")}/subscription/send-otp.php`, {
         waitUntil: "domcontentloaded",
       });
 
-      console.log("📨 VibeBox Send OTP opened");
-    } else if (origin.includes("kidzflix.betech.lk")) {
+      console.log("LumaBond Subscription");
+    }
+    
+    else if (origin.includes("serenai.betech.lk")) {
       await page.goto(origin, { waitUntil: "domcontentloaded" });
 
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
+      await page.goto(`${origin.replace(/\/$/, "")}/subscribe.php`, {
         waitUntil: "domcontentloaded",
       });
 
       console.log("🎬 Kidzflix video hit");
-    } else {
+    }
+    
+    else {
       throw new Error("Origin not allowed");
     }
 
