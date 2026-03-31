@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const { Op } = require("sequelize");
 const User = require("../Models/models.customer");
 const clickConfirmButton = require("../Services/Services.portalAutomation");
-const Gameon = require("../Models/models.gameon");
+// const Gameon = require("../Models/models.gameon");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 

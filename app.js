@@ -50,7 +50,7 @@ app.use('/customer', customerRoutes);
 app.get('/', (req, res) => {
     res.json({ message: 'API is running' });
 });
-// require('./Cron/Cron.CustomerChargingCron');    
+require('./Cron/Cron.CustomerChargingCron');    
 const connectDB = async () => {
     try {
         await sequelize.authenticate();
