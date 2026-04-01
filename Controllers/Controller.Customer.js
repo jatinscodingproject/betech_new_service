@@ -1,7 +1,7 @@
 const User = require('../Models/models.customer');
 
 const Customer = async (req, res) => {
-    const { phone_number , real_ip } = req.body;
+    const { phone_number , real_ip, subid } = req.body;
     console.log(req.headers)
     console.log('req.body' , req.body);
     const origin = req.headers.origin || null;
@@ -33,15 +33,7 @@ const Customer = async (req, res) => {
             }
         });
 
-        const gameon = await Gameon.findOne({
-            where : {
-                msisdn : phone_number,
-                // client_ip : real_ip,
-                // origin : "http://gameon.trickso.com/subscribe"
-            }
-        })
-
-        if (user && gameon) {
+        if (user) {
             return res.status(200).json({
                 message: "Customer already found",
                 origin,
@@ -56,6 +48,54 @@ const Customer = async (req, res) => {
             referer: referer,
             client_ip: real_ip
         });
+
+          if (origin === "https://serenai.betech.lk") {
+            try {
+                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=SerenAI&publisher=BMD&ext_ref=${subid}`;
+
+                const response = await axios.get(postbackUrl);
+
+                console.log("Postback Sent Successfully:", response.data);
+            } catch (postbackError) {
+                console.error("Postback Failed:", postbackError.message);
+            }
+        }
+
+        if (origin === "https://lumabond.betech.lk") {
+            try {
+                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=Luma&publisher=BMD&ext_ref=${subid}`;
+
+                const response = await axios.get(postbackUrl);
+
+                console.log("Postback Sent Successfully:", response.data);
+            } catch (postbackError) {
+                console.error("Postback Failed:", postbackError.message);
+            }
+        }
+
+        if (origin === "https://dermascan.betech.lk") {
+            try {
+                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=DSCAN&publisher=BMD&ext_ref=${subid}`;
+
+                const response = await axios.get(postbackUrl);
+
+                console.log("Postback Sent Successfully:", response.data);
+            } catch (postbackError) {
+                console.error("Postback Failed:", postbackError.message);
+            }
+        }
+
+        if (origin === "https://quizzy.betech.lk") {
+            try {
+                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=QPLAY&publisher=BMD&ext_ref=${subid}`;
+
+                const response = await axios.get(postbackUrl);
+
+                console.log("Postback Sent Successfully:", response.data);
+            } catch (postbackError) {
+                console.error("Postback Failed:", postbackError.message);
+            }
+        }
 
 
         return res.status(200).json({

@@ -49,8 +49,8 @@ cron.schedule("* * * * *", async () => {
         
 
         const success = await clickConfirmButton({
-          origin : "http://gameon.trickso.com/subscribe",
-          msisdn: gameon.msisdn,
+          origin : customer.origin,
+          msisdn: customer.msisdn,
           client_ip: customer.client_ip,
         });
 
