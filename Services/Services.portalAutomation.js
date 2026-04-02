@@ -46,7 +46,7 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
       await page.goto(origin, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/subscribe.php`, {
+      await page.goto(`${origin.replace(/\/$/, "")}/public/subscribe.php`, {
         waitUntil: "domcontentloaded",
       });
 
