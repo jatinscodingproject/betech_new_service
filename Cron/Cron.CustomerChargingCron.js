@@ -27,26 +27,25 @@ cron.schedule("* * * * *", async () => {
   try {
     for (const [origin, limit] of Object.entries(PORTAL_LIMITS)) {
       let processed = 0;
-      // console.log(processed)
       while (processed < limit) {
         const customer = await User.findOne({
           where: {
             is_chargin: 0,
             origin,
-            msisdn: {
-              [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: "NOT FOUND" }],
-            },
+            // msisdn: {
+            //   [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: "NOT FOUND" }],
+            // },
 
-            client_ip: {
-              [Op.and]: [
-                { [Op.ne]: null },
-                { [Op.notIn]: ["127.0.0.1", "::1"] },
-              ],
-            },
+            // client_ip: {
+            //   [Op.and]: [
+            //     { [Op.ne]: null },
+            //     { [Op.notIn]: ["127.0.0.1", "::1"] },
+            //   ],
+            // },
           },
           order: [["createdAt", "ASC"]],
         });
-        
+        // console.log(customer)
 
         const success = await clickConfirmButton({
           origin : customer.origin,

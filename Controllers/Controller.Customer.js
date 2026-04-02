@@ -1,115 +1,119 @@
-const User = require('../Models/models.customer');
+const User = require("../Models/models.customer");
 
 const Customer = async (req, res) => {
-    const { phone_number , real_ip, subid } = req.body;
-    console.log(req.headers)
-    console.log('req.body' , req.body);
-    const origin = req.headers.origin || null;
-    const referer = req.headers.referer || null;
-    // const clientIp =
-    //     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-    //     req.headers['x-real-ip'] ||
-    //     req.socket.remoteAddress ||
-    //     null;  
-    
-    const rawIp = req.ip;
-    const clientIp = rawIp?.startsWith("::ffff:")
-            ? rawIp.replace("::ffff:", "")
-            : rawIp;
-    
-    try {
-        if (!phone_number) {
-            return res.status(400).json({
-                message: "Phone number is required"
-            });
-        }
+  const { phone_number, real_ip, subid } = req.body;
+  console.log(req.headers);
+  console.log("req.body", req.body);
+  const origin = req.headers.origin || null;
+  const referer = req.headers.referer || null;
+  // const clientIp =
+  //     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+  //     req.headers['x-real-ip'] ||
+  //     req.socket.remoteAddress ||
+  //     null;
 
-        const user = await User.findOne({
-            where: {
-                msisdn: phone_number,
-                origin: origin,
-                referer: referer,
-                client_ip: real_ip,
-            }
-        });
+  const rawIp = req.ip;
+  const clientIp = rawIp?.startsWith("::ffff:")
+    ? rawIp.replace("::ffff:", "")
+    : rawIp;
 
-        if (user) {
-            return res.status(200).json({
-                message: "Customer already found",
-                origin,
-                referer,
-                client_ip: real_ip
-            });
-        }
-
-        await User.create({
-            msisdn: phone_number,
-            origin: origin,
-            referer: referer,
-            client_ip: real_ip
-        });
-
-          if (origin === "https://serenai.betech.lk") {
-            try {
-                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=SerenAI&publisher=BMD&ext_ref=${subid}`;
-
-                const response = await axios.get(postbackUrl);
-
-                console.log("Postback Sent Successfully:", response.data);
-            } catch (postbackError) {
-                console.error("Postback Failed:", postbackError.message);
-            }
-        }
-
-        if (origin === "https://lumabond.betech.lk") {
-            try {
-                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=Luma&publisher=BMD&ext_ref=${subid}`;
-
-                const response = await axios.get(postbackUrl);
-
-                console.log("Postback Sent Successfully:", response.data);
-            } catch (postbackError) {
-                console.error("Postback Failed:", postbackError.message);
-            }
-        }
-
-        if (origin === "https://dermascan.betech.lk") {
-            try {
-                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=DSCAN&publisher=BMD&ext_ref=${subid}`;
-
-                const response = await axios.get(postbackUrl);
-
-                console.log("Postback Sent Successfully:", response.data);
-            } catch (postbackError) {
-                console.error("Postback Failed:", postbackError.message);
-            }
-        }
-
-        if (origin === "https://quizzy.betech.lk") {
-            try {
-                const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=QPLAY&publisher=BMD&ext_ref=${subid}`;
-
-                const response = await axios.get(postbackUrl);
-
-                console.log("Postback Sent Successfully:", response.data);
-            } catch (postbackError) {
-                console.error("Postback Failed:", postbackError.message);
-            }
-        }
-
-
-        return res.status(200).json({
-            message: "Customer stored successfully",
-            origin,
-            referer
-        });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
+  try {
+    if (!phone_number) {
+      return res.status(400).json({
+        message: "Phone number is required",
+      });
     }
+
+    if (phone_number === "NOT FOUND") {
+      return res.status(404).json({
+        message: "Phone number not found",
+      });
+    }
+
+    const user = await User.findOne({
+      where: {
+        msisdn: phone_number,
+        origin: origin,
+        referer: referer,
+        client_ip: real_ip,
+      },
+    });
+
+    if (user) {
+      return res.status(200).json({
+        message: "Customer already found",
+        origin,
+        referer,
+        client_ip: real_ip,
+      });
+    }
+
+    await User.create({
+      msisdn: phone_number,
+      origin: origin,
+      referer: referer,
+      client_ip: real_ip,
+    });
+
+    if (origin === "https://serenai.betech.lk") {
+      try {
+        const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=SerenAI&publisher=BMD&ext_ref=${subid}`;
+
+        const response = await axios.get(postbackUrl);
+
+        console.log("Postback Sent Successfully:", response.data);
+      } catch (postbackError) {
+        console.error("Postback Failed:", postbackError.message);
+      }
+    }
+
+    if (origin === "https://lumabond.betech.lk") {
+      try {
+        const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=Luma&publisher=BMD&ext_ref=${subid}`;
+
+        const response = await axios.get(postbackUrl);
+
+        console.log("Postback Sent Successfully:", response.data);
+      } catch (postbackError) {
+        console.error("Postback Failed:", postbackError.message);
+      }
+    }
+
+    if (origin === "https://dermascan.betech.lk") {
+      try {
+        const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=DSCAN&publisher=BMD&ext_ref=${subid}`;
+
+        const response = await axios.get(postbackUrl);
+
+        console.log("Postback Sent Successfully:", response.data);
+      } catch (postbackError) {
+        console.error("Postback Failed:", postbackError.message);
+      }
+    }
+
+    if (origin === "https://quizzy.betech.lk") {
+      try {
+        const postbackUrl = `https://url.promotrking.com/advertiser/advertiser-callback?client=BTEK&service=QPLAY&publisher=BMD&ext_ref=${subid}`;
+
+        const response = await axios.get(postbackUrl);
+
+        console.log("Postback Sent Successfully:", response.data);
+      } catch (postbackError) {
+        console.error("Postback Failed:", postbackError.message);
+      }
+    }
+
+    return res.status(200).json({
+      message: "Customer stored successfully",
+      origin,
+      referer,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
 
 module.exports = Customer;
