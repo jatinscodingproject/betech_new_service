@@ -1,54 +1,50 @@
 const puppeteer = require("puppeteer");
-const path = require("path");
-const fs = require("fs");
+const os = require("os");
 
 let browser = null;
-let currentProfile = null;
 
-async function getBrowser(profileName = "default-profile") {
+async function getBrowser() {
+  if (browser) return browser;
 
-  // If already running with same profile, reuse
-  if (browser && currentProfile === profileName) {
-    return browser;
-  }
+  const isLinux = os.platform() === "linux";
+  const isWindows = os.platform() === "win32";
 
-  // If running with different profile, close first
-  if (browser && currentProfile !== profileName) {
-    await browser.close();
-    browser = null;
-  }
+  let executablePath;
+  let userDataDir;
 
-  const profilePath = path.join(
-    "C:/puppeteer/profiles",
-    profileName
-  );
-
-  // Create folder if not exists
-  if (!fs.existsSync(profilePath)) {
-    fs.mkdirSync(profilePath, { recursive: true });
+  if (isLinux) {
+    // Linux paths (your server)
+    executablePath = "/usr/bin/chromium-browser";
+    userDataDir = "/root/puppeteer/chrome-profile";
+  } else if (isWindows) {
+    // Windows paths (local dev)
+    executablePath =
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    userDataDir = "C:\\puppeteer\\chrome-profile";
   }
 
   browser = await puppeteer.launch({
-    headless: false,
-    executablePath:
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    userDataDir: profilePath,   // ✅ dynamic profile
+    headless: isLinux ? "new" : false,
+
+    executablePath,
+    userDataDir,
+
     ignoreHTTPSErrors: true,
+
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-infobars",
       "--disable-features=HttpsFirstMode",
       "--disable-web-security",
-      "--disable-infobars",
-      "--start-maximized",
+      ...(isLinux ? [] : ["--start-maximized"]),
     ],
+
     ignoreDefaultArgs: ["--enable-automation"],
   });
 
-  currentProfile = profileName;
-
-  console.log("🚀 Chrome launched with profile:", profilePath);
-
+  console.log("🚀 Chrome launched (shared browser)");
   return browser;
 }
 
@@ -56,9 +52,9 @@ async function closeBrowser() {
   if (browser) {
     await browser.close();
     browser = null;
-    currentProfile = null;
     console.log("🛑 Chrome closed");
   }
 }
 
 module.exports = { getBrowser, closeBrowser };
+
