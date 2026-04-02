@@ -1,4 +1,4 @@
-  GNU nano 7.2                                                                                                                  browsermanager.js
+  // GNU nano 7.2                                                                                                                  browsermanager.js
 const puppeteer = require("puppeteer");
 const os = require("os");
 
