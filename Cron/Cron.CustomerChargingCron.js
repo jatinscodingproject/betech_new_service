@@ -31,7 +31,7 @@ cron.schedule("* * * * *", async () => {
         const customer = await User.findOne({
           where: {
             is_chargin: 0,
-            origin,
+            // origin,
           },
           order: [["createdAt", "ASC"]],
         });
