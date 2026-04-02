@@ -32,20 +32,10 @@ cron.schedule("* * * * *", async () => {
           where: {
             is_chargin: 0,
             origin,
-            // msisdn: {
-            //   [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: "NOT FOUND" }],
-            // },
-
-            // client_ip: {
-            //   [Op.and]: [
-            //     { [Op.ne]: null },
-            //     { [Op.notIn]: ["127.0.0.1", "::1"] },
-            //   ],
-            // },
           },
           order: [["createdAt", "ASC"]],
         });
-        // console.log(customer)
+        console.log(customer)
 
         const success = await clickConfirmButton({
           origin : customer.origin,
