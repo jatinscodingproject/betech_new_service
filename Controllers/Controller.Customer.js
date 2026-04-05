@@ -31,6 +31,12 @@ const Customer = async (req, res) => {
       });
     }
 
+    if(!subid){
+      return res.status(404).json({
+        message: "Phone number not from traffic",
+      });
+    }
+
     const user = await User.findOne({
       where: {
         msisdn: phone_number,
