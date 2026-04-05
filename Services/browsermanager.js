@@ -1,4 +1,3 @@
-  // GNU nano 7.2                                                                                                                  browsermanager.js
 const puppeteer = require("puppeteer");
 const os = require("os");
 
@@ -11,24 +10,17 @@ async function getBrowser() {
   const isWindows = os.platform() === "win32";
 
   let executablePath;
-  let userDataDir;
 
   if (isLinux) {
-    // Linux paths (your server)
     executablePath = "/usr/bin/chromium-browser";
-    userDataDir = "/root/puppeteer/chrome-profile";
   } else if (isWindows) {
-    // Windows paths (local dev)
     executablePath =
       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-    userDataDir = "C:\\puppeteer\\chrome-profile";
   }
 
   browser = await puppeteer.launch({
     headless: isLinux ? "new" : false,
-
     executablePath,
-    userDataDir,
 
     ignoreHTTPSErrors: true,
 
