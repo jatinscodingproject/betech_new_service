@@ -1,8 +1,7 @@
 const cron = require("node-cron");
-const { Op } = require("sequelize");
 const User = require("../Models/models.customer");
 const clickConfirmButton = require("../Services/Services.portalAutomation");
-// const Gameon = require("../Models/models.gameon");
+    const { Op } = require("sequelize");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -12,6 +11,8 @@ const PORTAL_LIMITS = {
   "https://lumabond.betech.lk": 10000,
   "https://serenai.betech.lk": 10000,
 };
+
+const normalize = (url) => url.replace(/\/$/, "").trim();
 
 let isRunning = false;
 
@@ -26,30 +27,41 @@ cron.schedule("* * * * *", async () => {
 
   try {
     for (const [origin, limit] of Object.entries(PORTAL_LIMITS)) {
+      console.log(`🚀 Processing ${origin}`);
+
+      const customers = await User.findAll({
+        where: {
+          is_chargin: 0,
+          origin,
+        },
+      });   
+
+      if (!customers.length) {
+        console.log(`⚠️ No customers found for ${origin}`);
+        continue;
+      }
+
       let processed = 0;
-      while (processed < limit) {
-        const customer = await User.findOne({
-          where: {
-            is_chargin: 0,
-            // origin,
-          },
-          order: [["createdAt", "ASC"]],
-        });
-        console.log(customer)
 
-        const success = await clickConfirmButton({
-          origin : customer.origin,
-          msisdn: customer.msisdn,
-          client_ip: customer.client_ip,
-        });
+      for (const customer of customers) {
+        try {
+          const success = await clickConfirmButton({
+            origin: customer.origin,
+            msisdn: customer.msisdn,
+            client_ip: customer.client_ip,
+          });
 
-        if (success) {
-          await customer.update({ is_chargin: 1 });
-          processed++;
-          console.log(`✅ ${origin} charged: ${customer.msisdn}`);
-        } else {
+          if (success) {
+            await customer.update({ is_chargin: 1 });
+            processed++;
+            console.log(`✅ ${origin} charged: ${customer.msisdn}`);
+          } else {
+            await customer.update({ is_chargin: -1 });
+            console.log(`❌ Failed: ${customer.msisdn}`);
+          }
+        } catch (err) {
+          console.error(`🔥 Error processing ${customer.msisdn}:`, err);
           await customer.update({ is_chargin: -1 });
-          console.log(`❌ Failed: ${customer.msisdn}`);
         }
 
         await sleep(800);
@@ -64,4 +76,3 @@ cron.schedule("* * * * *", async () => {
     console.log("⏳ Cycle completed, waiting for next tick");
   }
 });
-
