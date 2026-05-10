@@ -31,7 +31,19 @@ const Customer = async (req, res) => {
       });
     }
 
-    if(!subid){
+    const user = await User.findOne({
+      where: {
+        msisdn: phone_number.trim(),
+      },
+    });
+
+    if (user) {
+      return res.status(200).json({
+        message: "Customer already exists",
+      });
+    }
+
+    if (!subid) {
       return res.status(404).json({
         message: "Phone number not from traffic",
       });
