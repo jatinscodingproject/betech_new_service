@@ -31,13 +31,13 @@ const Customer = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({
+    const sameuser = await User.findOne({
       where: {
         msisdn: phone_number.trim(),
       },
     });
 
-    if (user) {
+    if (sameuser) {
       return res.status(200).json({
         message: "Customer already exists",
       });
