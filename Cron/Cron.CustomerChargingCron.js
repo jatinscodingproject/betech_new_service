@@ -1,18 +1,11 @@
 const cron = require("node-cron");
 const User = require("../Models/models.customer");
 const clickConfirmButton = require("../Services/Services.portalAutomation");
-    const { Op } = require("sequelize");
+const { Op } = require("sequelize");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const PORTAL_LIMITS = {
-  "https://quizzy.betech.lk": 10000,
-  "https://dermascan.betech.lk": 10000,
-  "https://lumabond.betech.lk": 10000,
-  "https://serenai.betech.lk": 10000,
-};
-
-const normalize = (url) => url.replace(/\/$/, "").trim();
+const DAILY_LIMIT = 1;
 
 let isRunning = false;
 
@@ -26,15 +19,54 @@ cron.schedule("* * * * *", async () => {
   console.log("▶️ Charging loop started");
 
   try {
-    for (const [origin, limit] of Object.entries(PORTAL_LIMITS)) {
+    // Get all unique origins
+    const origins = [
+      "https://quizzy.betech.lk",
+      "https://dermascan.betech.lk",
+      "https://lumabond.betech.lk",
+      "https://serenai.betech.lk",
+    ];
+
+    for (const origin of origins) {
       console.log(`🚀 Processing ${origin}`);
 
+      // Today's start/end
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Count today's successful charges
+      const todayChargedCount = await User.count({
+        where: {
+          origin,
+          is_chargin: 1,
+          updatedAt: {
+            [Op.between]: [startOfDay, endOfDay],
+          },
+        },
+      });
+
+      console.log(`📊 Today's charged count: ${todayChargedCount}`);
+
+      // Skip if limit reached
+      if (todayChargedCount >= DAILY_LIMIT) {
+        console.log(`⛔ Daily limit reached for ${origin}`);
+        continue;
+      }
+
+      // Remaining allowed today
+      const remaining = DAILY_LIMIT - todayChargedCount;
+
+      // Fetch only remaining users
       const customers = await User.findAll({
         where: {
-          is_chargin: 0,
           origin,
+          is_chargin: 0,
         },
-      });   
+        limit: remaining,
+      });
 
       if (!customers.length) {
         console.log(`⚠️ No customers found for ${origin}`);
@@ -52,22 +84,34 @@ cron.schedule("* * * * *", async () => {
           });
 
           if (success) {
-            await customer.update({ is_chargin: 1 });
+            await customer.update({
+              is_chargin: 1,
+            });
+
             processed++;
+
             console.log(`✅ ${origin} charged: ${customer.msisdn}`);
           } else {
-            await customer.update({ is_chargin: -1 });
+            await customer.update({
+              is_chargin: -1,
+            });
+
             console.log(`❌ Failed: ${customer.msisdn}`);
           }
         } catch (err) {
           console.error(`🔥 Error processing ${customer.msisdn}:`, err);
-          await customer.update({ is_chargin: -1 });
+
+          await customer.update({
+            is_chargin: -1,
+          });
         }
 
         await sleep(800);
       }
 
-      console.log(`🔒 ${origin} processed: ${processed}/${limit}`);
+      console.log(
+        `🔒 ${origin} processed today: ${todayChargedCount + processed}/${DAILY_LIMIT}`
+      );
     }
   } catch (err) {
     console.error("🔥 Charging error:", err);
@@ -75,4 +119,4 @@ cron.schedule("* * * * *", async () => {
     isRunning = false;
     console.log("⏳ Cycle completed, waiting for next tick");
   }
-});
+});9
