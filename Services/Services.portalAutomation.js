@@ -16,7 +16,7 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
   let page;
 
   try {
-    origin = normalizeOrigin(origin);
+    origin = origin;
 
     const browser = await getBrowser();
     page = await browser.newPage();
@@ -30,50 +30,49 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
     });
 
     console.log("🍪 Cookies at start:", (await page.cookies()).length);
-
+    
     if (origin.includes("quizzy.betech.lk")) {
-      await page.goto(origin, { waitUntil: "domcontentloaded" });
+      await page.goto(`http://consent.hutch.lk/register-service/XQ%3D%3DCA%3D%3Deg%3D%3DAw%3D%3D`, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
-        waitUntil: "domcontentloaded",
-      });
+      // await page.goto(`${origin.replace(/\/$/, "")}/send-otp.php`, {
+      //   waitUntil: "domcontentloaded",
+      // });
 
-      console.log("Quizzy Consent");
+      console.log("quizzy Consent");
     }
 
     else if (origin.includes("dermascan.betech.lk")) {
-      await page.goto(origin, { waitUntil: "domcontentloaded" });
+      await page.goto(`http://consent.hutch.lk/register-service/XQ%3D%3DCA%3D%3Deg%3D%3DDQ%3D%3D`, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/public/subscribe.php`, {
-        waitUntil: "domcontentloaded",
-      });
+      // await page.goto(`${origin.replace(/\/$/, "")}/public/subscribe.php`, {
+      //   waitUntil: "domcontentloaded",
+      // });
 
-      console.log("DermaScan Consent");
+      console.log("Dermascan Consent");
     }
-    
-    else if (origin.includes("lumabond.betech.lk")) {
-      await page.goto(origin, { waitUntil: "domcontentloaded" });
-      await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/subscription/send-otp.php`, {
-        waitUntil: "domcontentloaded",
-      });
-
-      console.log("LumaBond Subscription");
-    }
-    
     else if (origin.includes("serenai.betech.lk")) {
-      await page.goto(origin, { waitUntil: "domcontentloaded" });
-
+      await page.goto(`http://consent.hutch.lk/register-service/XQ%3D%3DCA%3D%3Deg%3D%3DAQ%3D%3D`, { waitUntil: "domcontentloaded" });
       await sleep(2000);
 
-      await page.goto(`${origin.replace(/\/$/, "")}/subscribe.php`, {
-        waitUntil: "domcontentloaded",
-      });
+      // await page.goto(`${origin.replace(/\/$/, "")}/public/subscribe.php`, {
+      //   waitUntil: "domcontentloaded",
+      // });
 
-      console.log("🎬 Kidzflix video hit");
+      console.log("Serenai Consent");
+    }
+
+    else if (origin.includes("lumabond.betech.lk")) {
+      await page.goto(`http://consent.hutch.lk/register-service/XQ%3D%3DCA%3D%3Dew%3D%3DBQ%3D%3D`, { waitUntil: "domcontentloaded" });
+      await sleep(2000);
+
+      // await page.goto(`${origin.replace(/\/$/, "")}/public/subscribe.php`, {
+      //   waitUntil: "domcontentloaded",
+      // });
+
+      console.log("Lumabond Consent");
     }
     
     else {

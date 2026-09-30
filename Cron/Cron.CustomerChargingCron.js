@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const DAILY_LIMIT = 1;
+const DAILY_LIMIT = 600;
 
 let isRunning = false;
 
