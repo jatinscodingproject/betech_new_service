@@ -21,8 +21,8 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
     const browser = await getBrowser();
     page = await browser.newPage();
 
-    await page.setViewport({ width: 1280, height: 900 });
-    await page.setBypassCSP(true);
+    await page.setViewport({ width: 1280, height: 700 });
+    // await page.setBypassCSP(true);
 
     await page.setExtraHTTPHeaders({
       MSISDN: msisdn,
@@ -78,34 +78,52 @@ const clickConfirmButton = async ({ origin, msisdn, client_ip }) => {
     else {
       throw new Error("Origin not allowed");
     }
+ const controls = await page.evaluate(() => {
+        return Array.from(
+            document.querySelectorAll("button, input, [role='button']")
+        ).map((el) => ({
+            tag: el.tagName,
+            id: el.id || "",
+            name: el.getAttribute("name") || "",
+            type: el.getAttribute("type") || "",
+            className: el.className || "",
+            text: (el.innerText || el.value || "").trim(),
+            disabled: !!el.disabled,
+            visible: !!(
+                el.offsetWidth ||
+                el.offsetHeight ||
+                el.getClientRects().length
+            )
+        }));
+    });
 
-    // ================= CONFIRM =================
-    let confirmed = false;
-    try {
-      await page.waitForSelector("button.confirm", { timeout: 8000 });
-      await page.click("button.confirm");
-      confirmed = true;
-      console.log(`✅ Confirm clicked for ${msisdn}`);
-    } catch {
-      console.log("⏱️ Confirm button not present");
+    console.log("🔎 Consent controls:");
+    console.dir(controls, { depth: null });
+    const confirmButton = await page.waitForSelector(
+        "button.btn.btn-brand.mb-3",
+        {
+            visible: true,
+            timeout: 15000,
+        }
+    );
+
+    if (!confirmButton) {
+        throw new Error("Confirm button not found");
     }
 
-    await sleep(6000);
+console.log("✅ Confirm button found — clicking...");
 
+await confirmButton.click();
+    await sleep(6000);
     const cookiesAfter = await page.cookies();
     console.log("🍪 Cookies before clear:", cookiesAfter.length);
-
-    const success =
-      confirmed ||
-      cookiesAfter.length > 0 ||
-      page.url().includes("success") ||
-      page.url().includes("register");
-
+  const success =
+    cookiesAfter.length > 0 ||
+    page.url().includes("success") ||
+    page.url().includes("register");
     // 🔥 CLEAR COOKIES FOR NEXT USER
-    await clearCookiesAndCache(page);
-
+    await clearCookies(page);
     await page.close();
-
     return success;
   } catch (err) {
     console.error("❌ Automation failed:", err.message);

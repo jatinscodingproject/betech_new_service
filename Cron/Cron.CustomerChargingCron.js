@@ -63,7 +63,7 @@ cron.schedule("* * * * *", async () => {
       const customers = await User.findAll({
         where: {
           origin,
-          is_chargin: 0,
+          is_chargin: 1,
         },
         limit: remaining,
       });
